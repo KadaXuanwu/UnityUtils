@@ -1,0 +1,23 @@
+{
+  "name": "com.kadaxuanwu.utils",
+  "version": "1.0.0",
+  "displayName": "KadaXuanwu Utils",
+  "description": "Commonly used tools, systems, data structures, etc. for Unity in one package to save time.",
+  "unity": "6000.0",
+  "keywords": [
+    "utilities",
+    "helpers",
+    "tools",
+    "utils"
+  ],
+  "author": {
+    "name": "KadaXuanwu",
+    "url": "https://github.com/kadaxuanwu"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kadaxuanwu/unityutils.git"
+  },
+  "license": "MIT",
+  "samples": []
+}

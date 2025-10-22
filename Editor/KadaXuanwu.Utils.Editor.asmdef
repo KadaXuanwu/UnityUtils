@@ -1,0 +1,16 @@
+{
+    "name": "KadaXuanwu.Utils.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:005046a75ca95c24faa7d97e8047737a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
