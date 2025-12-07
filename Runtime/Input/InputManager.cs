@@ -4,34 +4,31 @@ using UnityEngine.InputSystem;
 
 namespace KadaXuanwu.Utils.Runtime.Input {
     /// <summary>
-    /// Centralized input manager that wraps the generated PlayerInputActions class.
-    /// Provides unified control over all input (enable/disable, action maps, etc.)
+    /// Centralized input manager that works with any InputActionAsset.
+    /// Assign your Input Actions asset in the inspector - no code generation dependency.
     /// 
     /// SETUP:
     /// 1. Create Input Actions asset with your bindings
-    /// 2. Check "Generate C# Class" in the asset inspector → Apply
-    /// 3. Rename the generated class to "InputSystemControls" (or update the reference here)
-    /// 4. Add InputManager to a persistent GameObject (or use Instance directly)
+    /// 2. Add InputManager to a persistent GameObject
+    /// 3. Assign your InputActionAsset in the inspector
     /// 
     /// USAGE:
-    ///     // Polling
-    ///     Vector2 move = InputManager.Instance.Actions.Player.Move.ReadValue&lt;Vector2&gt;();
-    ///     bool isJumping = InputManager.Instance.Actions.Player.Jump.IsPressed();
+    ///     // Get action map
+    ///     InputActionMap playerMap = InputManager.Instance.GetActionMap("Player");
+    ///     
+    ///     // Get specific action
+    ///     InputAction moveAction = InputManager.Instance.GetAction("Player", "Move");
+    ///     Vector2 move = moveAction.ReadValue&lt;Vector2&gt;();
     ///     
     ///     // Events
-    ///     InputManager.Instance.Actions.Player.Jump.performed += OnJump;
-    ///     
-    ///     // Disable all input (e.g., during pause/cutscene)
-    ///     InputManager.Instance.DisableAllInput();
-    ///     InputManager.Instance.EnableAllInput();
-    ///     
-    ///     // Switch action maps
-    ///     InputManager.Instance.SwitchToActionMap(InputManager.Instance.Actions.UI);
+    ///     InputManager.Instance.GetAction("Player", "Jump").performed += OnJump;
     /// </summary>
     public class InputManager : MonoBehaviour {
         public static InputManager Instance { get; private set; }
 
-        public InputSystemControls Actions { get; private set; }
+        [SerializeField] private InputActionAsset _inputActions;
+
+        public InputActionAsset Actions => _inputActions;
         public bool InputEnabled { get; private set; } = true;
 
         public event Action OnInputEnabled;
@@ -48,8 +45,12 @@ namespace KadaXuanwu.Utils.Runtime.Input {
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            Actions = new InputSystemControls();
-            _activeActionMap = Actions.Player.Get();
+            if (_inputActions == null) {
+                Debug.LogError("[InputManager] No InputActionAsset assigned!");
+                return;
+            }
+
+            _activeActionMap = _inputActions.FindActionMap("Player");
         }
 
         private void OnEnable() {
@@ -62,25 +63,41 @@ namespace KadaXuanwu.Utils.Runtime.Input {
 
         private void OnDestroy() {
             if (Instance == this) {
-                Actions?.Dispose();
                 Instance = null;
             }
         }
 
+        public InputActionMap GetActionMap(string name) {
+            return _inputActions?.FindActionMap(name);
+        }
+
+        public InputAction GetAction(string mapName, string actionName) {
+            return _inputActions?.FindActionMap(mapName)?.FindAction(actionName);
+        }
+
+        public InputAction GetAction(string actionName) {
+            return _inputActions?.FindAction(actionName);
+        }
+
         public void EnableAllInput() {
-            Actions.Enable();
+            _inputActions?.Enable();
             InputEnabled = true;
             OnInputEnabled?.Invoke();
         }
 
         public void DisableAllInput() {
-            Actions.Disable();
+            _inputActions?.Disable();
             InputEnabled = false;
             OnInputDisabled?.Invoke();
         }
 
+        public void SwitchToActionMap(string actionMapName) {
+            InputActionMap newMap = GetActionMap(actionMapName);
+            SwitchToActionMap(newMap);
+        }
+
         public void SwitchToActionMap(InputActionMap actionMap) {
-            if (_activeActionMap == actionMap) {
+            if (_activeActionMap == actionMap || actionMap == null) {
                 return;
             }
 
@@ -88,23 +105,20 @@ namespace KadaXuanwu.Utils.Runtime.Input {
             _activeActionMap = actionMap;
 
             if (InputEnabled) {
-                _activeActionMap?.Enable();
+                _activeActionMap.Enable();
             }
         }
 
-        public void EnableActionMap(InputActionMap actionMap) {
+        public void EnableActionMap(string name) {
             if (InputEnabled) {
-                actionMap?.Enable();
+                GetActionMap(name)?.Enable();
             }
         }
 
-        public void DisableActionMap(InputActionMap actionMap) {
-            actionMap?.Disable();
+        public void DisableActionMap(string name) {
+            GetActionMap(name)?.Disable();
         }
 
-        /// <summary>
-        /// Temporarily disables input for a duration (e.g., after death, during transitions).
-        /// </summary>
         public void DisableInputForDuration(float seconds) {
             StartCoroutine(DisableInputCoroutine(seconds));
         }

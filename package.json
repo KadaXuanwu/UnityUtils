@@ -1,6 +1,6 @@
 {
   "name": "com.kadaxuanwu.utils",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "displayName": "KadaXuanwu Utils",
   "description": "Commonly used tools, systems, data structures, etc. for Unity in one package to save time.",
   "unity": "6000.0",

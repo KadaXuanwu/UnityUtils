@@ -17,9 +17,9 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
         [SerializeField] private List<ScriptableObject> modifierConfigs = new List<ScriptableObject>();
 
         [Header("References")]
-        [SerializeField] private Transform groundCheckOrigin;
-        [SerializeField] private Transform cameraHolder;
         [SerializeField] private Transform playerVisuals;
+        [SerializeField] private Transform cameraHolder;
+        [SerializeField] private Transform groundCheckOrigin;
 
         // Public state
         public bool IsGrounded { get; private set; }

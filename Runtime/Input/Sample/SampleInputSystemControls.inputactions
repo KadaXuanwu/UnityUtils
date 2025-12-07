@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "name": "InputSystemControls",
+    "name": "SampleInputSystemControls",
     "maps": [
         {
             "name": "Player",
