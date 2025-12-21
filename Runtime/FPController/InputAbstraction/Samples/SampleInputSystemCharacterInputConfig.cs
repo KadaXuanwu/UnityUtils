@@ -1,7 +1,7 @@
 using KadaXuanwu.Utils.Runtime.Input;
 using UnityEngine;
 
-namespace KadaXuanwu.Utils.Runtime.FPController.InputAbstraction.Sample {
+namespace KadaXuanwu.Utils.Runtime.FPController.InputAbstraction.Samples {
     [CreateAssetMenu(fileName = "SampleInputSystemConfig", menuName = "Character/Input/Sample Input System")]
     public class SampleInputSystemCharacterInputConfig : ScriptableObject, ICharacterInputConfig {
         [SerializeField] private string _actionMapName = "Player";

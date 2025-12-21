@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace KadaXuanwu.Utils.Runtime.FPController.InputAbstraction.Sample {
+namespace KadaXuanwu.Utils.Runtime.FPController.InputAbstraction.Samples {
     /// <summary>
     /// Default implementation using Unity's Input System via InputManager.
     /// </summary>

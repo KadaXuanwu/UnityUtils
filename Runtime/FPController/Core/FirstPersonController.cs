@@ -8,15 +8,10 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
     public class FirstPersonController : MonoBehaviour {
         [SerializeField] private FirstPersonControllerConfig config;
 
-        [Header("Input")]
-        [Tooltip("Input configuration")]
         [SerializeField] private ScriptableObject inputConfig;
 
-        [Header("Modifiers")]
-        [Tooltip("Modifier configs in execution order. First = runs first.")]
         [SerializeField] private List<ScriptableObject> modifierConfigs = new List<ScriptableObject>();
 
-        [Header("References")]
         [SerializeField] private Transform playerVisuals;
         [SerializeField] private Transform cameraHolder;
         [SerializeField] private Transform groundCheckOrigin;
@@ -67,7 +62,13 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
             if (config == null) {
                 Debug.LogError($"[{nameof(FirstPersonController)}] Config is not assigned!", this);
                 enabled = false;
+                return;
             }
+
+            PlayerRefs.Controller = this;
+            PlayerRefs.CharacterController = _controller;
+            PlayerRefs.CameraHolder = cameraHolder;
+            PlayerRefs.Camera = cameraHolder != null ? cameraHolder.GetComponentInChildren<Camera>() : null;
         }
 
         private void Start() {
