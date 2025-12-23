@@ -7,13 +7,13 @@ namespace KadaXuanwu.Utils.Runtime.FPController.InputAbstraction.Samples {
         [SerializeField] private string _actionMapName = "Player";
 
         public ICharacterInput CreateInput() {
-            if (InputManager.Instance == null) {
+            if (InputManager.S == null) {
                 Debug.LogError("InputManager.Instance is null! Ensure InputManager exists in scene.");
                 return null;
             }
 
             SampleInputSystemCharacterInput input = new SampleInputSystemCharacterInput();
-            input.Initialize(InputManager.Instance.GetActionMap(_actionMapName));
+            input.Initialize(InputManager.S.GetActionMap(_actionMapName));
             return input;
         }
     }

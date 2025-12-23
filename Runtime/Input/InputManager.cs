@@ -24,7 +24,7 @@ namespace KadaXuanwu.Utils.Runtime.Input {
     ///     InputManager.Instance.GetAction("Player", "Jump").performed += OnJump;
     /// </summary>
     public class InputManager : MonoBehaviour {
-        public static InputManager Instance { get; private set; }
+        public static InputManager S { get; private set; }
 
         [SerializeField] private InputActionAsset _inputActions;
 
@@ -37,12 +37,12 @@ namespace KadaXuanwu.Utils.Runtime.Input {
         private InputActionMap _activeActionMap;
 
         private void Awake() {
-            if (Instance != null && Instance != this) {
+            if (S != null && S != this) {
                 Destroy(gameObject);
                 return;
             }
 
-            Instance = this;
+            S = this;
             DontDestroyOnLoad(gameObject);
 
             if (_inputActions == null) {
@@ -62,8 +62,8 @@ namespace KadaXuanwu.Utils.Runtime.Input {
         }
 
         private void OnDestroy() {
-            if (Instance == this) {
-                Instance = null;
+            if (S == this) {
+                S = null;
             }
         }
 
@@ -121,6 +121,22 @@ namespace KadaXuanwu.Utils.Runtime.Input {
 
         public void DisableInputForDuration(float seconds) {
             StartCoroutine(DisableInputCoroutine(seconds));
+        }
+
+        public string GetKeyBindingForAction(string actionName) {
+            InputAction action = GetAction(actionName);
+            if (action == null)
+                return string.Empty;
+
+            return action.GetBindingDisplayString();
+        }
+
+        public string GetKeyBindingForAction(string actionName, string controlScheme) {
+            InputAction action = GetAction(actionName);
+            if (action == null)
+                return string.Empty;
+
+            return action.GetBindingDisplayString(group: controlScheme);
         }
 
         private System.Collections.IEnumerator DisableInputCoroutine(float seconds) {
