@@ -2,7 +2,7 @@ using KadaXuanwu.Utils.Runtime.FPController.Core.Interfaces;
 using UnityEngine;
 
 namespace KadaXuanwu.Utils.Runtime.FPController.Modifiers.Jump {
-    [CreateAssetMenu(fileName = "JumpConfig", menuName = "Character/Modifiers/Jump")]
+    [CreateAssetMenu(fileName = "JumpConfig", menuName = "KadaXuanwu Utils/PFController/Modifiers/Jump")]
     public class JumpConfig : ScriptableObject, IModifierConfig {
         [Header("Jump")]
         [Tooltip("Height of the jump in units.")]

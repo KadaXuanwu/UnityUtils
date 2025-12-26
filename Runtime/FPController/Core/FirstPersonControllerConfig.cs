@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace KadaXuanwu.Utils.Runtime.FPController.Core {
-    [CreateAssetMenu(fileName = "FPControllerConfig", menuName = "Character/Controller Config")]
+    [CreateAssetMenu(fileName = "FPControllerConfig", menuName = "KadaXuanwu Utils/PFController/Controller Config")]
     public class FirstPersonControllerConfig : ScriptableObject {
         [Header("Physics")]
         [Tooltip("Gravity multiplier.")]

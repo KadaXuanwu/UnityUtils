@@ -2,7 +2,7 @@ using KadaXuanwu.Utils.Runtime.FPController.Core.Interfaces;
 using UnityEngine;
 
 namespace KadaXuanwu.Utils.Runtime.FPController.Modifiers.Sliding {
-    [CreateAssetMenu(fileName = "SlidingConfig", menuName = "Character/Modifiers/Sliding")]
+    [CreateAssetMenu(fileName = "SlidingConfig", menuName = "KadaXuanwu Utils/PFController/Modifiers/Sliding")]
     public class SlidingConfig : ScriptableObject, IModifierConfig {
         [Header("Speed")]
         [Tooltip("Base sliding speed on slopes.")]

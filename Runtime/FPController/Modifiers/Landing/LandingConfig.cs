@@ -2,7 +2,7 @@ using KadaXuanwu.Utils.Runtime.FPController.Core.Interfaces;
 using UnityEngine;
 
 namespace KadaXuanwu.Utils.Runtime.FPController.Modifiers.Landing {
-    [CreateAssetMenu(fileName = "LandingConfig", menuName = "Character/Modifiers/Landing")]
+    [CreateAssetMenu(fileName = "LandingConfig", menuName = "KadaXuanwu Utils/PFController/Modifiers/Landing")]
     public class LandingConfig : ScriptableObject, IModifierConfig {
         [Tooltip("Fall velocity at which landing causes full speed loss.")]
         [Min(1f)] public float VelocityDivisor = 15f;

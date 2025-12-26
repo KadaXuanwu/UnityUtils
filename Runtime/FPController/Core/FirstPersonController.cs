@@ -65,10 +65,10 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
                 return;
             }
 
-            PlayerRefs.Controller = this;
-            PlayerRefs.CharacterController = _controller;
-            PlayerRefs.CameraHolder = cameraHolder;
-            PlayerRefs.Camera = cameraHolder != null ? cameraHolder.GetComponentInChildren<Camera>() : null;
+            CharacterRefs.Controller = this;
+            CharacterRefs.CharacterController = _controller;
+            CharacterRefs.CameraHolder = cameraHolder;
+            CharacterRefs.Camera = cameraHolder != null ? cameraHolder.GetComponentInChildren<Camera>() : null;
         }
 
         private void Start() {
