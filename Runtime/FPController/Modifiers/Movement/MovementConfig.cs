@@ -2,7 +2,7 @@ using KadaXuanwu.Utils.Runtime.FPController.Core.Interfaces;
 using UnityEngine;
 
 namespace KadaXuanwu.Utils.Runtime.FPController.Modifiers.Movement {
-    [CreateAssetMenu(fileName = "MovementConfig", menuName = "KadaXuanwu Utils/PFController/Modifiers/Movement")]
+    [CreateAssetMenu(fileName = "MovementConfig", menuName = "KadaXuanwu Utils/FPController/Modifiers/Movement")]
     public class MovementConfig : ScriptableObject, IModifierConfig {
         [Header("Speed")]
         [Tooltip("Maximum horizontal movement speed.")]

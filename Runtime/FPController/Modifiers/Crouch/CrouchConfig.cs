@@ -2,7 +2,7 @@ using KadaXuanwu.Utils.Runtime.FPController.Core.Interfaces;
 using UnityEngine;
 
 namespace KadaXuanwu.Utils.Runtime.FPController.Modifiers.Crouch {
-    [CreateAssetMenu(fileName = "CrouchConfig", menuName = "KadaXuanwu Utils/PFController/Modifiers/Crouch")]
+    [CreateAssetMenu(fileName = "CrouchConfig", menuName = "KadaXuanwu Utils/FPController/Modifiers/Crouch")]
     public class CrouchConfig : ScriptableObject, IModifierConfig {
         [Header("Speed")]
         [Tooltip("Speed multiplier while crouching.")]
