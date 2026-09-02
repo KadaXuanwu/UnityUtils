@@ -5,6 +5,17 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.8] - 2026-09-02
+
+### Added
+- EditMode tests for the EventBus, in `Tests/Editor`. They declare their event types inside the
+  test assembly, which is the case the 1.1.7 discovery bug could never see. A consuming project
+  has to list `"testables": ["com.kadaxuanwu.utils"]` in its manifest for them to run.
+
+### Fixed
+- `Singleton` used the deprecated `FindFirstObjectByType`. `FindAnyObjectByType` is what a
+  singleton actually wants: it does not depend on instance ID ordering, and is cheaper.
+
 ## [1.1.7] - 2026-09-02
 
 ### Fixed

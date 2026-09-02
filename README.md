@@ -61,3 +61,13 @@ Enhanced inspector UI for runtime components with validation and helpful warning
 
 ### EditorEnhancements
 - **ShowGlobalRotation** - Custom Transform inspector showing global position, rotation, and scale
+
+## Tests
+EditMode tests live in `Tests/Editor`. Unity only runs a package's tests when the consuming
+project opts in, so add this to the project's `Packages/manifest.json` alongside `dependencies`:
+
+```json
+"testables": [ "com.kadaxuanwu.utils" ]
+```
+
+- **EventBusTests** - Registration, raising, unregistering during a raise, per-bus and global clearing

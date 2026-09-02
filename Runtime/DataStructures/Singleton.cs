@@ -15,7 +15,7 @@ namespace KadaXuanwu.Utils.Runtime.DataStructures {
         public static T S {
             get {
                 if (_s == null) {
-                    _s = FindFirstObjectByType<T>();
+                    _s = FindAnyObjectByType<T>();
 
                     if (_s == null) {
                         GameObject singletonObject = new();
