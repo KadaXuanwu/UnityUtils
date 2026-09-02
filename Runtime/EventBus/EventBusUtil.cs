@@ -1,17 +1,36 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
-using KadaXuanwu.Utils.Runtime.Helper;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace KadaXuanwu.Utils.Runtime.EventBus {
     /// <summary>
-    /// Contains methods and properties related to event buses and event types in the Unity application.
+    /// Keeps track of every <see cref="EventBus{T}"/> that has actually been used, so all of them
+    /// can be cleared at once when play mode ends.
+    ///
+    /// Buses announce themselves from their static constructor rather than being discovered by
+    /// reflection. The previous approach asked PredefinedAssemblyUtil for IEvent types, which by
+    /// design only looks in Assembly-CSharp and Assembly-CSharp-firstpass - so any event type
+    /// declared inside an asmdef was never found, and its bindings survived play mode with
+    /// references to destroyed objects still in them.
     /// </summary>
     public static class EventBusUtil {
-        public static IReadOnlyList<Type> EventTypes { get; set; }
-        public static IReadOnlyList<Type> EventBusTypes { get; set; }
+        private static readonly List<Type> RegisteredEventTypes = new();
+        private static readonly List<Type> RegisteredBusTypes = new();
+        private static readonly List<Action> ClearActions = new();
+
+        /// <summary>
+        /// The event types that currently have a live bus, in the order the buses were first used.
+        /// A type only appears here once something has registered, raised or cleared its bus.
+        /// </summary>
+        public static IReadOnlyList<Type> EventTypes => RegisteredEventTypes;
+
+        /// <summary>
+        /// The closed EventBus types matching <see cref="EventTypes"/>, in the same order.
+        /// </summary>
+        public static IReadOnlyList<Type> EventBusTypes => RegisteredBusTypes;
 
 #if UNITY_EDITOR
         public static PlayModeStateChange PlayModeState { get; set; }
@@ -24,7 +43,7 @@ namespace KadaXuanwu.Utils.Runtime.EventBus {
         /// when the game enters Play Mode.
         /// The method sets up a subscriber to the playModeStateChanged event to allow
         /// actions to be performed when the Editor's play mode changes.
-        /// </summary>    
+        /// </summary>
         [InitializeOnLoadMethod]
         public static void InitializeEditor() {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
@@ -40,37 +59,35 @@ namespace KadaXuanwu.Utils.Runtime.EventBus {
 #endif
 
         /// <summary>
-        /// Initializes the EventBusUtil class at runtime before the loading of any scene.
-        /// The [RuntimeInitializeOnLoadMethod] attribute instructs Unity to execute this method after
-        /// the game has been loaded but before any scene has been loaded, in both Play Mode and after
-        /// a Build is run. This guarantees that necessary initialization of bus-related types and events is
-        /// done before any game objects, scripts or components have started.
+        /// Called by <see cref="EventBus{T}"/> the first time that bus is touched. Not part of the
+        /// public surface: buses register themselves and nothing else should.
         /// </summary>
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void Initialize() {
-            EventTypes = PredefinedAssemblyUtil.GetTypes(typeof(IEvent));
-            EventBusTypes = InitializeAllBuses();
-        }
-
-        static List<Type> InitializeAllBuses() {
-            List<Type> eventBusTypes = new List<Type>();
-
-            var typedef = typeof(EventBus<>);
-            foreach (var eventType in EventTypes) {
-                var busType = typedef.MakeGenericType(eventType);
-            }
-
-            return eventBusTypes;
+        /// <param name="eventType">The event type the bus carries.</param>
+        /// <param name="busType">The closed EventBus type.</param>
+        /// <param name="clear">Clears that bus's bindings.</param>
+        internal static void RegisterBus(Type eventType, Type busType, Action clear) {
+            RegisteredEventTypes.Add(eventType);
+            RegisteredBusTypes.Add(busType);
+            ClearActions.Add(clear);
         }
 
         /// <summary>
-        /// Clears (removes all listeners from) all event buses in the application.
+        /// Runs before any scene loads, in both Play Mode and a build. With domain reloading on
+        /// there is nothing to do - the statics are already fresh - but with Enter Play Mode
+        /// Options set to skip the reload, the buses survive from the previous session, and this is
+        /// what guarantees a run always starts with no listeners.
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void Initialize() {
+            ClearAllBuses();
+        }
+
+        /// <summary>
+        /// Clears (removes all listeners from) every event bus that has been used.
         /// </summary>
         public static void ClearAllBuses() {
-            for (int i = 0; i < EventBusTypes.Count; i++) {
-                var busType = EventBusTypes[i];
-                var clearMethod = busType.GetMethod("Clear", BindingFlags.Static | BindingFlags.NonPublic);
-                clearMethod?.Invoke(null, null);
+            for (int i = 0; i < ClearActions.Count; i++) {
+                ClearActions[i].Invoke();
             }
         }
     }

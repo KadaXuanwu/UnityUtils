@@ -5,6 +5,23 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.7] - 2026-09-02
+
+### Fixed
+- EventBus listeners were never cleared. `EventBusUtil.InitializeAllBuses` created each bus type
+  and then returned an empty list, so `ClearAllBuses` had nothing to iterate and bindings survived
+  play mode still holding references to destroyed objects.
+- Event types declared inside an asmdef were invisible to the EventBus. Discovery ran through
+  `PredefinedAssemblyUtil`, which by design only searches Assembly-CSharp and
+  Assembly-CSharp-firstpass. Buses now register themselves on first use, so any assembly works.
+- `using UnityEditor;` was unguarded in the runtime assembly, where it does not compile for a
+  player build.
+
+### Changed
+- `EventBus<T>.Clear()` is public and no longer has to be reached by reflection.
+- `EventBusUtil.EventTypes` and `EventBusTypes` are read-only, and list the buses actually in use
+  instead of every IEvent type a scan happened to find.
+
 ## [1.1.6] - 2025-12-26
 
 ### Changed
