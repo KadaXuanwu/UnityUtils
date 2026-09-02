@@ -9,6 +9,7 @@ namespace KadaXuanwu.Utils.Runtime.EventBus {
     /// <typeparam name="T">The event type that implements IEvent.</typeparam>
     public static class EventBus<T> where T : IEvent {
         private static readonly HashSet<IEventBinding<T>> Bindings = new();
+        private static readonly Stack<List<IEventBinding<T>>> BufferPool = new();
 
         /// <summary>
         /// Announces this bus to <see cref="EventBusUtil"/> the first time anything touches it, so
@@ -35,17 +36,55 @@ namespace KadaXuanwu.Utils.Runtime.EventBus {
         public static void Unregister(EventBinding<T> binding) => Bindings.Remove(binding);
 
         /// <summary>
-        /// Raises an event, notifying all registered bindings.
-        /// Creates a copy of the bindings collection to allow safe modification during iteration.
-        /// Invokes both parameterized and parameterless callbacks for each binding.
+        /// Raises an event, invoking both the parameterized and parameterless callback of every
+        /// registered binding.
+        ///
+        /// Iterates a snapshot, because a handler is allowed to register or unregister while the
+        /// event is being delivered. The snapshot is a pooled list rather than a fresh collection:
+        /// raising used to allocate a whole HashSet every call, which is the kind of per-frame
+        /// garbage that shows up as a hitch under Unity's non-generational collector.
+        ///
+        /// Unregistering during a raise takes effect immediately - a binding removed by an earlier
+        /// handler is skipped rather than still being called. The alternative matches C# multicast
+        /// delegates, but here the usual shape is a handler destroying an object whose teardown
+        /// unregisters it, and calling that binding anyway means running a handler on a dead
+        /// object. Registering during a raise takes effect on the next one.
         /// </summary>
         /// <param name="event">The event data to broadcast to all listeners.</param>
         public static void Raise(T @event) {
-            var bindingsBuffer = new HashSet<IEventBinding<T>>(Bindings);
-            foreach (var binding in bindingsBuffer) {
-                binding.OnEvent.Invoke(@event);
-                binding.OnEventNoArgs.Invoke();
+            var buffer = RentBuffer();
+            try {
+                buffer.AddRange(Bindings);
+                for (var i = 0; i < buffer.Count; i++) {
+                    var binding = buffer[i];
+                    if (!Bindings.Contains(binding)) {
+                        continue;
+                    }
+
+                    binding.OnEvent.Invoke(@event);
+                    binding.OnEventNoArgs.Invoke();
+                }
             }
+            finally {
+                ReturnBuffer(buffer);
+            }
+        }
+
+        /// <summary>
+        /// A raise nested inside a handler rents its own buffer, so re-entrancy needs no special
+        /// case. The pool therefore only ever grows to the deepest nesting actually reached.
+        /// </summary>
+        private static List<IEventBinding<T>> RentBuffer() {
+            return BufferPool.Count > 0 ? BufferPool.Pop() : new List<IEventBinding<T>>();
+        }
+
+        /// <summary>
+        /// Cleared on the way back in, so a pooled buffer never keeps a binding - and whatever it
+        /// captured - alive after the raise that used it.
+        /// </summary>
+        private static void ReturnBuffer(List<IEventBinding<T>> buffer) {
+            buffer.Clear();
+            BufferPool.Push(buffer);
         }
 
         /// <summary>
