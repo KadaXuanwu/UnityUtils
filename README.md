@@ -11,7 +11,7 @@ Website: https://turtlecodelabs.com/
 
 ## Runtime
 ### Components
-- **ButtonIgnoreTransparent** - Makes UI buttons ignore clicks on transparent pixels
+- **ButtonIgnoreTransparent** - Makes UI buttons ignore clicks on transparent pixels (only compiled when `com.unity.ugui` is installed)
 - **DestroyAfterDelay** - Automatically destroys GameObject after specified delay
 - **DestroyOnCollision** - Destroys GameObject when colliding with specific layers
 - **DontRotateWithParent** - Cancels out Z-axis rotation inherited from parent

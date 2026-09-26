@@ -1,3 +1,4 @@
+#if KADAXUANWU_UGUI
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,3 +10,4 @@ namespace KadaXuanwu.Utils.Runtime.Components {
         }
     }
 }
+#endif

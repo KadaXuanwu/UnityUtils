@@ -1,3 +1,4 @@
+#if KADAXUANWU_UGUI
 using UnityEditor;
 using KadaXuanwu.Utils.Runtime.Components;
 
@@ -15,3 +16,4 @@ namespace KadaXuanwu.Utils.Editor.Components {
         }
     }
 }
+#endif
