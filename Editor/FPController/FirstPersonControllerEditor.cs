@@ -13,6 +13,8 @@ namespace KadaXuanwu.Utils.Editor.FPController {
         private SerializedProperty _playerVisuals;
         private SerializedProperty _cameraHolder;
         private SerializedProperty _groundCheckOrigin;
+        private SerializedProperty _lockCursorOnAwake;
+        private SerializedProperty _registerInCharacterRefs;
 
         private void OnEnable() {
             _config = serializedObject.FindProperty("config");
@@ -21,6 +23,8 @@ namespace KadaXuanwu.Utils.Editor.FPController {
             _playerVisuals = serializedObject.FindProperty("playerVisuals");
             _cameraHolder = serializedObject.FindProperty("cameraHolder");
             _groundCheckOrigin = serializedObject.FindProperty("groundCheckOrigin");
+            _lockCursorOnAwake = serializedObject.FindProperty("lockCursorOnAwake");
+            _registerInCharacterRefs = serializedObject.FindProperty("registerInCharacterRefs");
         }
 
         public override void OnInspectorGUI() {
@@ -32,6 +36,7 @@ namespace KadaXuanwu.Utils.Editor.FPController {
             DrawInputSection();
             DrawModifiersSection();
             DrawReferencesSection();
+            DrawStartupSection();
             DrawRuntimeInfo(controller);
 
             serializedObject.ApplyModifiedProperties();
@@ -114,6 +119,13 @@ namespace KadaXuanwu.Utils.Editor.FPController {
                 EditorGUILayout.HelpBox("GroundCheckOrigin not set. Will use transform.position for ground checks.", MessageType.Info);
             }
 
+            EditorGUILayout.Space();
+        }
+
+        private void DrawStartupSection() {
+            EditorGUILayout.LabelField("Startup", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_lockCursorOnAwake);
+            EditorGUILayout.PropertyField(_registerInCharacterRefs);
             EditorGUILayout.Space();
         }
 

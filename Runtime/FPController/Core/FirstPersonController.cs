@@ -16,6 +16,13 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
         [SerializeField] private Transform cameraHolder;
         [SerializeField] private Transform groundCheckOrigin;
 
+        [Tooltip("Lock and hide the cursor on Awake.")]
+        [SerializeField] private bool lockCursorOnAwake = true;
+
+        [Tooltip("Publish this controller in the static CharacterRefs on Awake. Turn off for every " +
+            "controller but the local player's, e.g. in split screen.")]
+        [SerializeField] private bool registerInCharacterRefs = true;
+
         // Public state
         public bool IsGrounded { get; private set; }
         public Vector3 Velocity => _velocity;
@@ -23,13 +30,18 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
         public GroundInfo CurrentGroundInfo { get; private set; }
         public MovementContext CurrentContext => _currentContext;
 
-        // Dependencies
-        public FirstPersonControllerConfig Config => config;
+        // Dependencies. The setters are for controllers built in code: add the component to an
+        // inactive GameObject, assign, then activate, so Awake and Start see the values.
+        public FirstPersonControllerConfig Config { get => config; set => config = value; }
+        public List<ScriptableObject> ModifierConfigs => modifierConfigs;
         public ICharacterInput Input { get; private set; }
         public CharacterEvents Events { get; } = new CharacterEvents();
         public CharacterController CharacterController => _controller;
-        public Transform CameraHolder => cameraHolder;
-        public Transform PlayerVisuals => playerVisuals;
+        public Transform CameraHolder { get => cameraHolder; set => cameraHolder = value; }
+        public Transform PlayerVisuals { get => playerVisuals; set => playerVisuals = value; }
+        public Transform GroundCheckOrigin { get => groundCheckOrigin; set => groundCheckOrigin = value; }
+        public bool LockCursorOnAwake { get => lockCursorOnAwake; set => lockCursorOnAwake = value; }
+        public bool RegisterInCharacterRefs { get => registerInCharacterRefs; set => registerInCharacterRefs = value; }
 
         // Constants
         private const float BaseLookSensitivity = 0.008f;
@@ -56,22 +68,25 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
         private void Awake() {
             _controller = GetComponent<CharacterController>();
 
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            if (lockCursorOnAwake) {
+                SetCursorLocked(true);
+            }
 
+            if (registerInCharacterRefs) {
+                CharacterRefs.Controller = this;
+                CharacterRefs.CharacterController = _controller;
+                CharacterRefs.CameraHolder = cameraHolder;
+                CharacterRefs.Camera = cameraHolder != null ? cameraHolder.GetComponentInChildren<Camera>() : null;
+            }
+        }
+
+        private void Start() {
             if (config == null) {
                 Debug.LogError($"[{nameof(FirstPersonController)}] Config is not assigned!", this);
                 enabled = false;
                 return;
             }
 
-            CharacterRefs.Controller = this;
-            CharacterRefs.CharacterController = _controller;
-            CharacterRefs.CameraHolder = cameraHolder;
-            CharacterRefs.Camera = cameraHolder != null ? cameraHolder.GetComponentInChildren<Camera>() : null;
-        }
-
-        private void Start() {
             if (Input == null) {
                 InitializeInput();
             }
@@ -101,6 +116,13 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
             }
             _modifiers.Clear();
             Events.ClearAllSubscribers();
+
+            if (CharacterRefs.Controller == this) {
+                CharacterRefs.Controller = null;
+                CharacterRefs.CharacterController = null;
+                CharacterRefs.CameraHolder = null;
+                CharacterRefs.Camera = null;
+            }
         }
 
         #endregion
