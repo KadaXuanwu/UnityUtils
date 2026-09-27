@@ -5,6 +5,13 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2026-09-27
+
+### Fixed
+- Loading a second scene that holds an `InputManager` disabled all input: the duplicate destroys itself
+  in `Awake`, but its `OnDisable` still called `DisableAllInput` on the shared actions. Only the live
+  instance toggles input now.
+
 ## [1.3.1] - 2026-09-27
 
 ### Fixed

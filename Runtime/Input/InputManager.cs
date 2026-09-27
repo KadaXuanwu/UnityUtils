@@ -53,12 +53,18 @@ namespace KadaXuanwu.Utils.Runtime.Input {
             _activeActionMap = _inputActions.FindActionMap("Player");
         }
 
+        // A duplicate destroyed in Awake still gets OnEnable and OnDisable; only the live instance may
+        // toggle the shared actions, or loading a second scene with an InputManager disables all input.
         private void OnEnable() {
-            EnableAllInput();
+            if (S == this) {
+                EnableAllInput();
+            }
         }
 
         private void OnDisable() {
-            DisableAllInput();
+            if (S == this) {
+                DisableAllInput();
+            }
         }
 
         private void OnDestroy() {
