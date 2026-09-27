@@ -5,6 +5,22 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-09-27
+
+### Changed
+- `SampleInputSystemCharacterInput` and `SampleInputSystemCharacterInputConfig` are now
+  `InputSystemCharacterInput` and `InputSystemCharacterInputConfig`, in
+  `KadaXuanwu.Utils.Runtime.FPController.InputAbstraction`: they are the package's input
+  implementation, not a sample. `[MovedFrom]` lets Unity's API updater rewrite existing code, and
+  existing config assets keep working (same script GUIDs). The create menu entry is now
+  "Input System Config".
+
+### Fixed
+- Gamepad and joystick look was near zero: a stick reports a rate (-1..1) while the controller
+  expects a mouse's per-frame pixel delta. `InputSystemCharacterInput` scales a stick by
+  `GamepadLookSpeed` (config field, default 4500 pixels per second, about 180 degrees per second at
+  mouse sensitivity 5) and the frame time.
+
 ## [1.2.0] - 2026-09-26
 
 ### Added
