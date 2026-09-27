@@ -335,12 +335,13 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
         #region Rotation
 
         private void HandleRotation() {
+            // Frozen time (timeScale 0, e.g. a pause menu) freezes the view too.
             if (_lastFrameDeltaTime == 0f || Input == null) {
                 return;
             }
 
             Vector2 lookInput = Input.LookInput;
-            float sensitivityFactor = config.MouseSensitivity * BaseLookSensitivity * Time.deltaTime / _lastFrameDeltaTime;
+            float sensitivityFactor = config.MouseSensitivity * BaseLookSensitivity;
 
             _currentRotation.x = Mathf.Clamp(
                 _currentRotation.x + lookInput.y * sensitivityFactor,
