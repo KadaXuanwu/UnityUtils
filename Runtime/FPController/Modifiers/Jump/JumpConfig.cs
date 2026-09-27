@@ -5,8 +5,8 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Modifiers.Jump {
     [CreateAssetMenu(fileName = "JumpConfig", menuName = "KadaXuanwu Utils/FPController/Modifiers/Jump")]
     public class JumpConfig : ScriptableObject, IModifierConfig {
         [Header("Jump")]
-        [Tooltip("Height of the jump in units.")]
-        [Min(0f)] public float JumpHeight = 3f;
+        [Tooltip("Peak height of a jump from standing, in units.")]
+        [Min(0f)] public float JumpHeight = 1.5f;
 
         [Tooltip("Horizontal speed multiplier when jumping.")]
         [Min(1f)] public float JumpSpeedBoostFactor = 1.05f;

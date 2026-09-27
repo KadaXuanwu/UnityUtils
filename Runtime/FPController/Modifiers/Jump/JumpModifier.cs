@@ -40,7 +40,8 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Modifiers.Jump {
             _jumpHeldConsumed = true;
             state.ConsumedJump = true;
 
-            float jumpVelocity = Mathf.Sqrt(-Config.JumpHeight * -9.81f * BaseConfig.GravityMultiplier);
+            // Take-off speed whose ballistic peak is JumpHeight: v = sqrt(2 g h).
+            float jumpVelocity = Mathf.Sqrt(2f * Config.JumpHeight * 9.81f * BaseConfig.GravityMultiplier);
             Vector3 horizontalVelocity = new Vector3(context.Velocity.x, 0f, context.Velocity.z) * Config.JumpSpeedBoostFactor;
 
             context.Velocity = new Vector3(horizontalVelocity.x, jumpVelocity, horizontalVelocity.z);
