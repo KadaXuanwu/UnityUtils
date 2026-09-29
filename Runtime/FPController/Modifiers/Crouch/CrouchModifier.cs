@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace KadaXuanwu.Utils.Runtime.FPController.Modifiers.Crouch {
     public class CrouchModifier : MovementModifierBase<CrouchConfig, CrouchEvents> {
+        private const float HeadroomTolerance = 0.01f;
+        private static readonly Collider[] HeadroomHits = new Collider[16];
+
         public CrouchModifier(CrouchConfig config) : base(config) { }
 
         public override void ProcessMovement(ref MovementContext context) {
@@ -36,10 +39,30 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Modifiers.Crouch {
         }
 
         private bool CanStandUp() {
-            float heightDifference = Config.StandingHeight - Config.CrouchingHeight;
-            Vector3 origin = Controller.transform.position + Vector3.up * Config.CrouchingHeight;
+            CharacterController cc = Controller.CharacterController;
+            return HasHeadroom(Controller.transform.position, cc.radius, Config, cc);
+        }
 
-            return !Physics.Raycast(origin, Vector3.up, heightDifference + 0.1f);
+        /// <summary>
+        /// Whether the standing capsule fits at <paramref name="position"/>: nothing but
+        /// <paramref name="self"/> overlaps the part of it above the crouching capsule. Checks the full
+        /// width, so a ceiling edge off to one side blocks too, not only one straight over the centre.
+        /// </summary>
+        public static bool HasHeadroom(Vector3 position, float radius, CrouchConfig config, Collider self) {
+            float crouchingTop = config.CrouchingCenterY + config.CrouchingHeight / 2f;
+            float standingTop = config.StandingCenterY + config.StandingHeight / 2f;
+            Vector3 bottom = position + Vector3.up * (crouchingTop - radius);
+            Vector3 top = position + Vector3.up * (Mathf.Max(standingTop, crouchingTop) - radius);
+
+            // A hair narrower, so a wall the capsule already rests against does not count.
+            int count = Physics.OverlapCapsuleNonAlloc(bottom, top, radius - HeadroomTolerance, HeadroomHits,
+                Physics.AllLayers, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < count; i++) {
+                if (HeadroomHits[i] != self) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void UpdateControllerHeight(bool isCrouching) {

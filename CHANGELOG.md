@@ -5,6 +5,14 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.4] - 2026-09-29
+
+### Fixed
+- `CrouchModifier` let a crouching body stand up into a ceiling edge over the side of its capsule: the
+  stand-up check was one ray up from the centre. It now overlaps the whole standing capsule above the
+  crouching one, ignoring the body's own collider and triggers. The check is public as
+  `CrouchModifier.HasHeadroom`.
+
 ## [1.3.3] - 2026-09-27
 
 ### Changed
