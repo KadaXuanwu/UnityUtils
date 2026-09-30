@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using KadaXuanwu.Utils.Runtime.FPController.Core;
 using KadaXuanwu.Utils.Runtime.FPController.Modifiers.Crouch;
 using NUnit.Framework;
 using UnityEngine;
 
 namespace KadaXuanwu.Utils.Tests {
     /// <summary>
-    /// Tests for the stand-up check. Until 1.3.4 it was one ray up from the centre, so a ceiling edge
-    /// over the side of the capsule let a crouching body stand up into it.
+    /// Tests for the capsule's stand-up check. Until 1.3.4 it was one ray up from the centre, so a ceiling
+    /// edge over the side of the capsule let a crouching body stand up into it.
     /// </summary>
     public class CrouchHeadroomTests {
         private const float Radius = 0.35f;
@@ -75,7 +76,7 @@ namespace KadaXuanwu.Utils.Tests {
 
         private bool HasHeadroom() {
             Physics.SyncTransforms();
-            return CrouchModifier.HasHeadroom(Feet, Radius, _config, _self);
+            return new CharacterControllerMotor(_self).HasHeadroom(_config.StandingHeight, _config.StandingCenterY);
         }
 
         // A 0.2 m cube at an offset from the feet.

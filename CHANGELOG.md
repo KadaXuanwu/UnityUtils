@@ -5,6 +5,23 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-09-30
+
+### Added
+- `ICharacterMotor`: what moves a `FirstPersonController`'s body and collides it with the world. A
+  component implementing it on the controller's GameObject replaces Unity's `CharacterController`, for
+  a collision shape or world the capsule does not fit (a flat-bottomed cylinder on a voxel grid, say).
+  Without one, the controller wraps its `CharacterController` in `CharacterControllerMotor` and behaves
+  as before. `FirstPersonController.Motor` exposes it.
+
+### Changed
+- `FirstPersonController` no longer has `[RequireComponent(typeof(CharacterController))]`: adding it
+  in the editor no longer adds a `CharacterController` too. Existing objects keep theirs. With neither
+  a `CharacterController` nor an `ICharacterMotor` it logs an error and disables itself.
+- `FirstPersonController.CharacterController` is null when a custom motor moves the body.
+- `CrouchModifier` resizes the body and checks headroom through the motor. The stand-up check moved
+  from `CrouchModifier.HasHeadroom` to `ICharacterMotor.HasHeadroom`; the capsule's is unchanged.
+
 ## [1.3.4] - 2026-09-29
 
 ### Fixed

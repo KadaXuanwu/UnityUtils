@@ -4,7 +4,10 @@ using KadaXuanwu.Utils.Runtime.FPController.InputAbstraction;
 using UnityEngine;
 
 namespace KadaXuanwu.Utils.Runtime.FPController.Core {
-    [RequireComponent(typeof(CharacterController))]
+    /// <summary>
+    /// Moves through an <see cref="ICharacterMotor"/>: a component implementing it on this GameObject, or else
+    /// the GameObject's <see cref="UnityEngine.CharacterController"/>.
+    /// </summary>
     public class FirstPersonController : MonoBehaviour {
         [SerializeField] private FirstPersonControllerConfig config;
 
@@ -36,6 +39,8 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
         public List<ScriptableObject> ModifierConfigs => modifierConfigs;
         public ICharacterInput Input { get; private set; }
         public CharacterEvents Events { get; } = new CharacterEvents();
+        public ICharacterMotor Motor => _motor;
+        /// <summary>Null when a custom <see cref="ICharacterMotor"/> moves the body.</summary>
         public CharacterController CharacterController => _controller;
         public Transform CameraHolder { get => cameraHolder; set => cameraHolder = value; }
         public Transform PlayerVisuals { get => playerVisuals; set => playerVisuals = value; }
@@ -51,6 +56,7 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
 
         // Internal state
         private CharacterController _controller;
+        private ICharacterMotor _motor;
         private List<IMovementModifier> _modifiers = new List<IMovementModifier>();
         private Vector3 _velocity;
         private Vector3 _currentRotation;
@@ -67,6 +73,15 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
 
         private void Awake() {
             _controller = GetComponent<CharacterController>();
+            _motor = GetComponent<ICharacterMotor>();
+            if (_motor == null && _controller != null) {
+                _motor = new CharacterControllerMotor(_controller);
+            }
+            if (_motor == null) {
+                Debug.LogError($"[{nameof(FirstPersonController)}] Needs a CharacterController or an ICharacterMotor component.", this);
+                enabled = false;
+                return;
+            }
 
             if (lockCursorOnAwake) {
                 SetCursorLocked(true);
@@ -303,22 +318,22 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
         }
 
         private void ApplyMovement() {
-            if (!_controller.enabled || _currentContext.PreventMovement) {
+            if (!_motor.Enabled || _currentContext.PreventMovement) {
                 return;
             }
 
             Vector3 velocityBefore = _velocity;
-            CollisionFlags flags = _controller.Move(_velocity * Time.deltaTime);
+            CollisionFlags flags = _motor.Move(_velocity * Time.deltaTime);
             bool hadImpact = false;
 
             if ((flags & CollisionFlags.Sides) != 0) {
-                _velocity.x = _controller.velocity.x;
-                _velocity.z = _controller.velocity.z;
+                _velocity.x = _motor.Velocity.x;
+                _velocity.z = _motor.Velocity.z;
                 hadImpact = true;
             }
 
             if ((flags & CollisionFlags.Above) != 0) {
-                _velocity.y = _controller.velocity.y;
+                _velocity.y = _motor.Velocity.y;
                 hadImpact = true;
             }
 
@@ -369,7 +384,7 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
 
         private void UpdateGroundedState() {
             bool wasGrounded = IsGrounded;
-            IsGrounded = _controller.isGrounded;
+            IsGrounded = _motor.IsGrounded;
 
             if (wasGrounded != IsGrounded) {
                 Events.InvokeGroundedChanged(IsGrounded);
@@ -412,7 +427,7 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
 
             info.SlopeAngle = flattestAngle;
             info.SlopeNormal = flattestNormal;
-            info.OnSlope = flattestAngle >= _controller.slopeLimit;
+            info.OnSlope = flattestAngle >= _motor.SlopeLimit;
             info.GroundCollider = groundCollider;
 
             if (info.OnSlope) {
@@ -481,10 +496,7 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
         }
 
         public void Teleport(Vector3 position, Vector3? rotation = null, bool resetVelocity = true) {
-            bool wasEnabled = _controller.enabled;
-            _controller.enabled = false;
-
-            transform.position = position;
+            _motor.Teleport(position);
 
             if (rotation.HasValue) {
                 SetRotation(rotation.Value);
@@ -494,14 +506,13 @@ namespace KadaXuanwu.Utils.Runtime.FPController.Core {
                 ResetVelocity();
             }
 
-            _controller.enabled = wasEnabled;
             UpdateGroundedState();
 
             Events.InvokeTeleported(position);
         }
 
         public void SetControllerEnabled(bool enabled) {
-            _controller.enabled = enabled;
+            _motor.Enabled = enabled;
         }
 
         public void SetCursorLocked(bool locked) {
